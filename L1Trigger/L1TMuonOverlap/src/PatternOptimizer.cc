@@ -300,9 +300,47 @@ void PatternOptimizer::updateStatForAllGps(GoldenPatternWithStat* omtfCandGp, Go
   }
 }
 
+//// ###### Gradient ###### ////
+void PatternOptimizer::updatePdfs(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, double& learingRate)
+{
+  for(unsigned int iLayer = 0;  iLayer < omtfResult.getHitPdfBins().size(); iLayer++) {
+    double dPDF = learingRate * gradError;
+    omtfCandGp->updateStat(iLayer, omtfCand.getRefLayer(), omtfResult.getHitPdfBins()[iLayer], whatOmtfVal, dPDF);
+  }
+}
 
+void PatternOptimizer::updateGradient(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp)
+{
+  for(unsigned int iLogicLayer=0; iLogicLayer < omtfResult.getpdfValues().size(); ++iLogicLayer) {
+    unsigned int connectedLayer = myOmtfConfig->getLogicToLogic().at(iLogicLayer); //TODO myOmtfConfig needed
+    //here we require that in case of the DT layers, both phi and phiB is fired
+    if(omtfResult. getFiredLayerBits() & (1<<connectedLayer) ) {
+      if( firedLayerBits & (1<<iLogicLayer) ) {//now in the GoldenPattern::process1Layer1RefLayer the pdf bin 0 is returned when the layer is not fired, so this is 'if' is to assured that this pdf val is not added here
+        double pdfSum = omtfResult.getPfdSum();
+        double p_deltaPhi1 = omtfResult.getPdfSum() / omtfResult.getGpProbability1();
+        double dPdfSumDPdf = getDPdfSumDPdf(omtfCandGp, exptCandGp, iLogicLayer);
+        double dP_deltaPhis1DPdf = getDP_deltaPhis1DPdf( omtfCandGp, exptCandGp, iLogicLayer);
+        double pdfValue = omtfResult.getpdfValues[iLogicLayer];
+        gradError = 2 * sqrt(error) * (dPdfSumDPdf / p_deltaPhi1 - dP_deltaPhis1DPdf * pdfSum / p_deltaPhi1 / p_deltaPhi1);
+      }
+    }
+  }
+}
 
+double PatternOptimizer::getDPdfSumDPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, int iLogicLayer)
+{
+  return omtfResult.getPfdSum() / omtfResult.getPdfValues()[iLogicLayer];
+}
 
+double PatternOptimizer::getDP_deltaPhis1DPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, int iLogicLayer)
+{
+  return omtfResult.getPfdSum() / omtfResult.getPdfValues()[iLogicLayer]; //in the equations there is a sum over pt, but should it be here??
+}
+
+void PatternOptimizer::updateError(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp)
+{
+   error += (1 - omtfResult.getGpProbability1()) * (1 - omtfResult.getGpProbability1());
+}
 
 
 

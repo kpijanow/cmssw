@@ -49,6 +49,8 @@ private:
 
   GoldenPatternResult omtfResult;
   GoldenPatternResult exptResult;
+  double error;
+  double gradError;
 
   unsigned int exptPatNum;
 
@@ -89,6 +91,12 @@ private:
   void savePatternsInRoot(std::string rootFileName);
 
   void modifyPatterns();
+
+  void updatePdfs(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, double& learingRate);
+  void updateGradient(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
+  void updateError(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
+  void getDPdfSumDPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
+
 };
 
 #endif /* OMTF_PATTERNOPTIMIZER_H_ */
