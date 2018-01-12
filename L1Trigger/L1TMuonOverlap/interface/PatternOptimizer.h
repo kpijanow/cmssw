@@ -93,9 +93,10 @@ private:
   void modifyPatterns();
 
   void updatePdfs(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, double& learingRate);
-  void updateGradient(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
+  void updateGradient(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, double& learningRate);
   void updateError(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
-  void getDPdfSumDPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp);
+  double getDPdfSumDPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, int iLogicLayer);
+  double getDP_deltaPhis1DPdf(GoldenPatternWithStat* omtfCandGp, GoldenPatternWithStat* exptCandGp, int iLogicLayer);
 
 };
 
